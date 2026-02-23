@@ -34,7 +34,7 @@ import com.peopleinnet.glcameraapp.ui.theme.GLCameraAppTheme
 class MainActivity : ComponentActivity() {
 
     private lateinit var renderer: GLCameraRenderer
-    private lateinit var glSurfaceView: GLSurfaceView
+    private var glSurfaceView: GLSurfaceView? = null
     private var cameraController: CameraXController? = null
     private val cameraPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
@@ -60,8 +60,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        renderer = GLCameraRenderer(applicationContext)
-        renderer.setFilter(GrayFilter(applicationContext))
+        renderer = GLCameraRenderer()
 
         enableEdgeToEdge()
 
@@ -70,11 +69,12 @@ class MainActivity : ComponentActivity() {
 
                 AndroidView(
                     factory = { context ->
-                        glSurfaceView = GLSurfaceView(context).apply {
+                        GLSurfaceView(context).apply {
                             setEGLContextClientVersion(2)
                             setRenderer(renderer)
+                            renderMode = GLSurfaceView.RENDERMODE_CONTINUOUSLY
+                            glSurfaceView = this
                         }
-                        glSurfaceView
                     },
                     modifier = Modifier.fillMaxSize()
                 )
@@ -88,8 +88,8 @@ class MainActivity : ComponentActivity() {
                     Button(
                         onClick = {
                             Log.e("Gray", "activity click")
-                            glSurfaceView.queueEvent {
-                                renderer.setFilter(GrayFilter(applicationContext))
+                            glSurfaceView?.queueEvent {
+                                renderer.setFilter(GrayFilter())
                             }
                         }
                     ) {
@@ -99,8 +99,8 @@ class MainActivity : ComponentActivity() {
                     Button(
                         onClick = {
                             Log.e("Normal", "activity click")
-                            glSurfaceView.queueEvent {
-                                renderer.setFilter(NormalFilter(applicationContext))
+                            glSurfaceView?.queueEvent {
+                                renderer.setFilter(NormalFilter())
                             }
                         }
                     ) {
@@ -116,7 +116,6 @@ class MainActivity : ComponentActivity() {
     private fun startCamera() {
         renderer.onSurfaceTextureReady = { texture ->
             cameraController = CameraXController(
-                this,
                 this,
                 texture
             )
@@ -136,6 +135,38 @@ class MainActivity : ComponentActivity() {
             else -> {
                 cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
             }
+        }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        cameraController?.start()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        glSurfaceView?.onResume()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        cameraController?.stop()
+        glSurfaceView?.onPause()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        cameraController?.stop()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        cameraController?.release()
+        cameraController = null
+
+        // Release renderer resources safely
+        glSurfaceView?.queueEvent {
+            renderer.release()
         }
     }
 

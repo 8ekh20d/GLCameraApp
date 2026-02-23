@@ -1,11 +1,12 @@
 package com.peopleinnet.glcameraapp.gl
 
 import android.content.Context
+import com.peopleinnet.glcameraapp.GLCameraApp
 
 object ShaderLoader {
 
-    fun loadRaw(context: Context, resId: Int): String {
-        return context.resources.openRawResource(resId)
+    fun loadRaw(resId: Int): String {
+        return GLCameraApp.instance.resources.openRawResource(resId)
             .bufferedReader()
             .use { it.readText() }
     }

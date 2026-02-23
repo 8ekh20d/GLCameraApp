@@ -9,18 +9,23 @@ import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
+import com.peopleinnet.glcameraapp.GLCameraApp
+import java.util.concurrent.Executor
 
 class CameraXController(
-    private val context: Context,
     private val lifecycleOwner: LifecycleOwner,
     private val surfaceTexture: SurfaceTexture
 ) {
 
+    private var cameraProvider: ProcessCameraProvider? = null
+    private val appContext = GLCameraApp.instance
+    private val mainExecutor: Executor = ContextCompat.getMainExecutor(appContext)
+
     fun start() {
-        val future = ProcessCameraProvider.getInstance(context)
+        val future = ProcessCameraProvider.getInstance(appContext)
 
         future.addListener({
-            val provider = future.get()
+            cameraProvider = future.get()
 
             val preview = Preview.Builder()
                 .setTargetRotation(Surface.ROTATION_0)
@@ -28,19 +33,28 @@ class CameraXController(
 
             preview.setSurfaceProvider { request ->
                 val surface = Surface(surfaceTexture)
-                request.provideSurface(
-                    surface,
-                    ContextCompat.getMainExecutor(context)
-                ) {}
+                request.provideSurface(surface, mainExecutor) {
+                    surface.release()
+                }
             }
 
-            provider.unbindAll()
-            provider.bindToLifecycle(
+            // Unbind previous use cases and bind new
+            cameraProvider?.unbindAll()
+            cameraProvider?.bindToLifecycle(
                 lifecycleOwner,
                 CameraSelector.DEFAULT_BACK_CAMERA,
                 preview
             )
 
-        }, ContextCompat.getMainExecutor(context))
+        }, mainExecutor)
+    }
+
+    fun stop() {
+        cameraProvider?.unbindAll()
+    }
+
+    fun release() {
+        cameraProvider?.unbindAll()
+        cameraProvider = null
     }
 }

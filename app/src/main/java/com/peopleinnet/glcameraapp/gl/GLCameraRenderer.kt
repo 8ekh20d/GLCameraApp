@@ -14,9 +14,7 @@ import java.nio.FloatBuffer
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 
-class GLCameraRenderer(
-    private val context: Context
-) : GLSurfaceView.Renderer {
+class GLCameraRenderer() : GLSurfaceView.Renderer {
 
     private lateinit var surfaceTexture: SurfaceTexture
     private var oesTextureId = 0
@@ -59,8 +57,8 @@ class GLCameraRenderer(
             }
 
         // Default filter
-        currentFilter = NormalFilter(context)
-        currentFilter?.init(context)
+        currentFilter = NormalFilter()
+        currentFilter?.init()
 
         GLES20.glClearColor(0f, 0f, 0f, 1f)
     }
@@ -139,7 +137,7 @@ class GLCameraRenderer(
         Log.e("GrayTest", "renderer click start")
         currentFilter?.release()
         currentFilter = filter
-        currentFilter?.init(context)
+        currentFilter?.init()
         Log.e("GrayTest", "renderer click end")
 
     }
@@ -148,6 +146,8 @@ class GLCameraRenderer(
 
     fun release() {
         currentFilter?.release()
-        surfaceTexture.release()
+        if (::surfaceTexture.isInitialized) {
+            surfaceTexture.release()
+        }
     }
 }

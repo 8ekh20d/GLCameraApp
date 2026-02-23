@@ -5,16 +5,15 @@ import android.opengl.GLES20
 import com.peopleinnet.glcameraapp.gl.ShaderLoader
 
 abstract class BaseFilter(
-    private val context: Context,
     private val vertexRes: Int,
     private val fragmentRes: Int
 ) : GLFilter {
 
     protected var glProgram = 0
 
-    override fun init(context: Context) {
-        val vertex = ShaderLoader.loadRaw(context, vertexRes)
-        val fragment = ShaderLoader.loadRaw(context, fragmentRes)
+    override fun init() {
+        val vertex = ShaderLoader.loadRaw(vertexRes)
+        val fragment = ShaderLoader.loadRaw(fragmentRes)
         glProgram = createProgram(vertex, fragment)
     }
 
