@@ -1,12 +1,12 @@
-package com.peopleinnet.glcameraapp.ui
+package com.peopleinnet.glcameraapp.ui.components
 
-import androidx.compose.runtime.Composable
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -22,25 +22,25 @@ fun FilterSelector(
     val filters = listOf("Normal", "Gray", "Sepia")
 
     Row(
-        modifier = Modifier
+        modifier = Modifier.Companion
             .fillMaxWidth()
             .padding(vertical = 16.dp),
         horizontalArrangement = Arrangement.SpaceEvenly,
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.Companion.CenterVertically
     ) {
         filters.forEach { filter ->
             Text(
                 text = filter.uppercase(),
                 color = if (selectedFilter == filter)
-                    Color.White
+                    Color.Companion.White
                 else
-                    Color.White.copy(alpha = 0.5f),
+                    Color.Companion.White.copy(alpha = 0.5f),
                 fontWeight = if (selectedFilter == filter)
-                    FontWeight.Bold
+                    FontWeight.Companion.Bold
                 else
-                    FontWeight.Normal,
+                    FontWeight.Companion.Normal,
                 fontSize = 14.sp,
-                modifier = Modifier
+                modifier = Modifier.Companion
                     .clickable {
                         onFilterSelected(filter)
                     }

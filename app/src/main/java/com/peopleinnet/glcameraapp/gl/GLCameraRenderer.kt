@@ -19,6 +19,7 @@ class GLCameraRenderer() : GLSurfaceView.Renderer {
     private lateinit var surfaceTexture: SurfaceTexture
     private var oesTextureId = 0
     var onSurfaceTextureReady: ((SurfaceTexture) -> Unit)? = null
+    var frameMetricsListener: FrameMetricsListener? = null
 
     private lateinit var vertexBuffer: FloatBuffer
     private val transformMatrix = FloatArray(16)
@@ -70,6 +71,7 @@ class GLCameraRenderer() : GLSurfaceView.Renderer {
     }
 
     override fun onDrawFrame(gl: GL10?) {
+        val start = System.nanoTime()
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
 
         surfaceTexture.updateTexImage()
@@ -88,6 +90,11 @@ class GLCameraRenderer() : GLSurfaceView.Renderer {
         bindTexture()
 
         GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4)
+
+        val end = System.nanoTime()
+        val frameTimeMs = (end - start) / 1_000_000f
+
+        frameMetricsListener?.onFrameProcessed(frameTimeMs)
     }
 
     private fun bindVertexData() {
@@ -147,4 +154,8 @@ class GLCameraRenderer() : GLSurfaceView.Renderer {
             surfaceTexture.release()
         }
     }
+}
+
+interface FrameMetricsListener {
+    fun onFrameProcessed(frameTimeMs: Float)
 }
