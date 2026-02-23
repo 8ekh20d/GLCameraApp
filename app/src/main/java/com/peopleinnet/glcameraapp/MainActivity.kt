@@ -10,22 +10,31 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import com.peopleinnet.glcameraapp.camera.CameraXController
+import com.peopleinnet.glcameraapp.filters.GrayFilter
+import com.peopleinnet.glcameraapp.filters.NormalFilter
 import com.peopleinnet.glcameraapp.gl.GLCameraRenderer
 import com.peopleinnet.glcameraapp.ui.theme.GLCameraAppTheme
 
 class MainActivity : ComponentActivity() {
 
     private lateinit var renderer: GLCameraRenderer
+    private lateinit var glSurfaceView: GLSurfaceView
     private var cameraController: CameraXController? = null
     private val cameraPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
@@ -51,28 +60,60 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        renderer = GLCameraRenderer()
+        renderer = GLCameraRenderer(applicationContext)
+        renderer.setFilter(GrayFilter(applicationContext))
 
         enableEdgeToEdge()
 
         setContent {
-            AndroidView(
-                factory = { context ->
-                    GLSurfaceView(context).apply {
-                        setEGLContextClientVersion(2)
-                        setRenderer(renderer)
+            Box(modifier = Modifier.fillMaxSize()) {
+
+                AndroidView(
+                    factory = { context ->
+                        glSurfaceView = GLSurfaceView(context).apply {
+                            setEGLContextClientVersion(2)
+                            setRenderer(renderer)
+                        }
+                        glSurfaceView
+                    },
+                    modifier = Modifier.fillMaxSize()
+                )
+
+                Row(
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(start = 24.dp, end = 24.dp, bottom = 70.dp),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    Button(
+                        onClick = {
+                            Log.e("Gray", "activity click")
+                            glSurfaceView.queueEvent {
+                                renderer.setFilter(GrayFilter(applicationContext))
+                            }
+                        }
+                    ) {
+                        Text("Gray")
                     }
-                },
-                modifier = Modifier.fillMaxSize()
-            )
+
+                    Button(
+                        onClick = {
+                            Log.e("Normal", "activity click")
+                            glSurfaceView.queueEvent {
+                                renderer.setFilter(NormalFilter(applicationContext))
+                            }
+                        }
+                    ) {
+                        Text("Normal")
+                    }
+                }
+            }
         }
 
         checkPermission()
     }
 
     private fun startCamera() {
-        Log.e("CameraTest", "GLCameraRenderer().apply 1")
-
         renderer.onSurfaceTextureReady = { texture ->
             cameraController = CameraXController(
                 this,
@@ -81,9 +122,6 @@ class MainActivity : ComponentActivity() {
             )
             cameraController?.start()
         }
-
-        Log.e("CameraTest", "GLCameraRenderer().apply 2")
-
     }
 
     private fun checkPermission() {
@@ -101,20 +139,4 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    GLCameraAppTheme {
-        Greeting("Android")
-    }
 }

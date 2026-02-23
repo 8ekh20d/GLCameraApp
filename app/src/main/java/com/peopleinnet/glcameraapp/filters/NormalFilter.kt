@@ -3,8 +3,8 @@ package com.peopleinnet.glcameraapp.filters
 import android.content.Context
 import com.peopleinnet.glcameraapp.R
 
-class GrayFilter(context: Context) : BaseFilter(
+class NormalFilter(context: Context) : BaseFilter(
     context,
     R.raw.vertex_shader,
-    R.raw.fragment_gray
+    R.raw.fragment_oes
 )
