@@ -134,12 +134,9 @@ class GLCameraRenderer() : GLSurfaceView.Renderer {
     }
 
     fun setFilter(filter: GLFilter) {
-        Log.e("GrayTest", "renderer click start")
         currentFilter?.release()
         currentFilter = filter
         currentFilter?.init()
-        Log.e("GrayTest", "renderer click end")
-
     }
 
     fun getSurfaceTexture(): SurfaceTexture = surfaceTexture

@@ -12,6 +12,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -19,6 +20,10 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -28,7 +33,9 @@ import androidx.core.content.ContextCompat
 import com.peopleinnet.glcameraapp.camera.CameraXController
 import com.peopleinnet.glcameraapp.filters.GrayFilter
 import com.peopleinnet.glcameraapp.filters.NormalFilter
+import com.peopleinnet.glcameraapp.filters.SepiaFilter
 import com.peopleinnet.glcameraapp.gl.GLCameraRenderer
+import com.peopleinnet.glcameraapp.ui.FilterSelector
 import com.peopleinnet.glcameraapp.ui.theme.GLCameraAppTheme
 
 class MainActivity : ComponentActivity() {
@@ -65,6 +72,8 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         setContent {
+            var selectedFilter by remember { mutableStateOf("Normal") }
+
             Box(modifier = Modifier.fillMaxSize()) {
 
                 AndroidView(
@@ -79,33 +88,26 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize()
                 )
 
-                Row(
+                Column(
                     modifier = Modifier
+                        .padding(start = 24.dp, end = 24.dp, bottom = 70.dp)
                         .align(Alignment.BottomCenter)
-                        .padding(start = 24.dp, end = 24.dp, bottom = 70.dp),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    Button(
-                        onClick = {
-                            Log.e("Gray", "activity click")
-                            glSurfaceView?.queueEvent {
-                                renderer.setFilter(GrayFilter())
-                            }
-                        }
-                    ) {
-                        Text("Gray")
-                    }
+                    FilterSelector(
+                        selectedFilter = selectedFilter,
+                        onFilterSelected = { filter ->
+                            selectedFilter = filter
 
-                    Button(
-                        onClick = {
-                            Log.e("Normal", "activity click")
                             glSurfaceView?.queueEvent {
-                                renderer.setFilter(NormalFilter())
+                                when (filter) {
+                                    "Gray" -> renderer.setFilter(GrayFilter())
+                                    "Sepia" -> renderer.setFilter(SepiaFilter())
+                                    "Normal" -> renderer.setFilter(NormalFilter())
+                                }
                             }
                         }
-                    ) {
-                        Text("Normal")
-                    }
+                    )
+
                 }
             }
         }
