@@ -35,6 +35,6 @@ fun MetricsOverlay(
         color = Color.White,
         modifier = modifier
             .background(Color.Black.copy(alpha = 0.6f))
-            .padding(16.dp)
+            .padding(top = 34.dp, bottom = 16.dp, start = 16.dp, end = 16.dp)
     )
 }

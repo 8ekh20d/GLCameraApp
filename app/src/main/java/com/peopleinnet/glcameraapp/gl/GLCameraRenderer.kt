@@ -16,6 +16,8 @@ import javax.microedition.khronos.opengles.GL10
 
 class GLCameraRenderer() : GLSurfaceView.Renderer {
 
+    private val TAG = "GLCameraRenderer"
+    
     private lateinit var surfaceTexture: SurfaceTexture
     private var oesTextureId = 0
     var onSurfaceTextureReady: ((SurfaceTexture) -> Unit)? = null
@@ -42,59 +44,79 @@ class GLCameraRenderer() : GLSurfaceView.Renderer {
     )
 
     override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
-        oesTextureId = GLHelper.createOESTexture()
+        try {
+            oesTextureId = GLHelper.createOESTexture()
 
-        surfaceTexture = SurfaceTexture(oesTextureId)
-        surfaceTexture.setDefaultBufferSize(1080, 1920)
-        onSurfaceTextureReady?.invoke(surfaceTexture)
+            surfaceTexture = SurfaceTexture(oesTextureId)
+            surfaceTexture.setDefaultBufferSize(1080, 1920)
+            onSurfaceTextureReady?.invoke(surfaceTexture)
 
-        vertexBuffer = ByteBuffer
-            .allocateDirect(vertices.size * 4)
-            .order(ByteOrder.nativeOrder())
-            .asFloatBuffer()
-            .apply {
-                put(vertices)
-                position(0)
-            }
+            vertexBuffer = ByteBuffer
+                .allocateDirect(vertices.size * 4)
+                .order(ByteOrder.nativeOrder())
+                .asFloatBuffer()
+                .apply {
+                    put(vertices)
+                    position(0)
+                }
 
-        // Default filter
-        currentFilter = NormalFilter()
-        currentFilter?.init()
+            // Default filter
+            currentFilter = NormalFilter()
+            currentFilter?.init()
 
-        GLES20.glClearColor(0f, 0f, 0f, 1f)
+            GLES20.glClearColor(0f, 0f, 0f, 1f)
+            GLHelper.checkGLError("glClearColor")
+        } catch (e: Exception) {
+            Log.e(TAG, "Surface creation failed", e)
+            throw RuntimeException("Failed to create GL surface", e)
+        }
     }
 
     override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {
-        surfaceWidth = width
-        surfaceHeight = height
-        GLES20.glViewport(0, 0, width, height)
+        try {
+            surfaceWidth = width
+            surfaceHeight = height
+            GLES20.glViewport(0, 0, width, height)
+            GLHelper.checkGLError("glViewport")
+        } catch (e: Exception) {
+            Log.e(TAG, "Surface change failed", e)
+        }
     }
 
     override fun onDrawFrame(gl: GL10?) {
         val start = System.nanoTime()
-        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
+        
+        try {
+            GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
+            GLHelper.checkGLError("glClear")
 
-        surfaceTexture.updateTexImage()
-        surfaceTexture.getTransformMatrix(transformMatrix)
+            surfaceTexture.updateTexImage()
+            surfaceTexture.getTransformMatrix(transformMatrix)
 
-        val program = currentFilter?.getProgram() ?: return
-        GLES20.glUseProgram(program)
+            val program = currentFilter?.getProgram() ?: return
+            GLES20.glUseProgram(program)
+            GLHelper.checkGLError("glUseProgram")
 
-        positionHandle = GLES20.glGetAttribLocation(program, "aPosition")
-        texHandle = GLES20.glGetAttribLocation(program, "aTexCoord")
-        textureHandle = GLES20.glGetUniformLocation(program, "uTexture")
-        transformHandle = GLES20.glGetUniformLocation(program, "uTransform")
+            positionHandle = GLES20.glGetAttribLocation(program, "aPosition")
+            texHandle = GLES20.glGetAttribLocation(program, "aTexCoord")
+            textureHandle = GLES20.glGetUniformLocation(program, "uTexture")
+            transformHandle = GLES20.glGetUniformLocation(program, "uTransform")
 
-        bindVertexData()
-        applyTransformMatrix()
-        bindTexture()
+            bindVertexData()
+            applyTransformMatrix()
+            bindTexture()
 
-        GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4)
+            GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4)
+            GLHelper.checkGLError("glDrawArrays")
 
-        val end = System.nanoTime()
-        val frameTimeMs = (end - start) / 1_000_000f
+            val end = System.nanoTime()
+            val frameTimeMs = (end - start) / 1_000_000f
 
-        frameMetricsListener?.onFrameProcessed(frameTimeMs)
+            frameMetricsListener?.onFrameProcessed(frameTimeMs)
+        } catch (e: Exception) {
+            Log.e(TAG, "Frame rendering failed", e)
+            // Continue rendering on next frame
+        }
     }
 
     private fun bindVertexData() {
@@ -107,7 +129,9 @@ class GLCameraRenderer() : GLSurfaceView.Renderer {
             4 * 4,
             vertexBuffer
         )
+        GLHelper.checkGLError("glVertexAttribPointer position")
         GLES20.glEnableVertexAttribArray(positionHandle)
+        GLHelper.checkGLError("glEnableVertexAttribArray position")
 
         vertexBuffer.position(2)
         GLES20.glVertexAttribPointer(
@@ -118,7 +142,9 @@ class GLCameraRenderer() : GLSurfaceView.Renderer {
             4 * 4,
             vertexBuffer
         )
+        GLHelper.checkGLError("glVertexAttribPointer texture")
         GLES20.glEnableVertexAttribArray(texHandle)
+        GLHelper.checkGLError("glEnableVertexAttribArray texture")
     }
 
     private fun applyTransformMatrix() {
@@ -129,29 +155,55 @@ class GLCameraRenderer() : GLSurfaceView.Renderer {
             transformMatrix,
             0
         )
+        GLHelper.checkGLError("glUniformMatrix4fv")
     }
 
     private fun bindTexture() {
         GLES20.glActiveTexture(GLES20.GL_TEXTURE0)
+        GLHelper.checkGLError("glActiveTexture")
+        
         GLES20.glBindTexture(
             GLES11Ext.GL_TEXTURE_EXTERNAL_OES,
             oesTextureId
         )
+        GLHelper.checkGLError("glBindTexture")
+        
         GLES20.glUniform1i(textureHandle, 0)
+        GLHelper.checkGLError("glUniform1i")
     }
 
     fun setFilter(filter: GLFilter) {
-        currentFilter?.release()
-        currentFilter = filter
-        currentFilter?.init()
+        try {
+            currentFilter?.release()
+            currentFilter = filter
+            currentFilter?.init()
+        } catch (e: Exception) {
+            Log.e(TAG, "Filter change failed", e)
+            // Fallback to normal filter
+            try {
+                currentFilter = NormalFilter()
+                currentFilter?.init()
+            } catch (fallbackError: Exception) {
+                Log.e(TAG, "Fallback filter initialization failed", fallbackError)
+            }
+        }
     }
 
     fun getSurfaceTexture(): SurfaceTexture = surfaceTexture
 
     fun release() {
-        currentFilter?.release()
-        if (::surfaceTexture.isInitialized) {
-            surfaceTexture.release()
+        try {
+            currentFilter?.release()
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to release filter", e)
+        }
+        
+        try {
+            if (::surfaceTexture.isInitialized) {
+                surfaceTexture.release()
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to release surface texture", e)
         }
     }
 }

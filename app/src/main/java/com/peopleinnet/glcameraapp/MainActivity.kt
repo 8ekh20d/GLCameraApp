@@ -62,13 +62,20 @@ class MainActivity : ComponentActivity() {
                     glSurfaceView = glView
                 },
                 onFilterSelected = { filter ->
-
-                    glSurfaceView?.queueEvent {
-                        when (filter) {
-                            "Gray" -> renderer.setFilter(GrayFilter())
-                            "Sepia" -> renderer.setFilter(SepiaFilter())
-                            "Normal" -> renderer.setFilter(NormalFilter())
+                    try {
+                        glSurfaceView?.queueEvent {
+                            try {
+                                when (filter) {
+                                    "Gray" -> renderer.setFilter(GrayFilter())
+                                    "Sepia" -> renderer.setFilter(SepiaFilter())
+                                    "Normal" -> renderer.setFilter(NormalFilter())
+                                }
+                            } catch (e: Exception) {
+                                android.util.Log.e("MainActivity", "Filter switch failed", e)
+                            }
                         }
+                    } catch (e: Exception) {
+                        android.util.Log.e("MainActivity", "Failed to queue filter change", e)
                     }
                 }
             )
@@ -87,12 +94,32 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun startCamera() {
-        renderer.onSurfaceTextureReady = { texture ->
-            cameraController = CameraXController(
+        try {
+            renderer.onSurfaceTextureReady = { texture ->
+                try {
+                    cameraController = CameraXController(
+                        this,
+                        texture
+                    )
+                    cameraController?.start()
+                } catch (e: Exception) {
+                    runOnUiThread {
+                        Toast.makeText(
+                            this,
+                            "Failed to start camera: ${e.message}",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+                    android.util.Log.e("MainActivity", "Camera start failed", e)
+                }
+            }
+        } catch (e: Exception) {
+            Toast.makeText(
                 this,
-                texture
-            )
-            cameraController?.start()
+                "Failed to initialize camera: ${e.message}",
+                Toast.LENGTH_LONG
+            ).show()
+            android.util.Log.e("MainActivity", "Camera initialization failed", e)
         }
     }
 
@@ -113,7 +140,11 @@ class MainActivity : ComponentActivity() {
 
     override fun onStart() {
         super.onStart()
-        cameraController?.start()
+        try {
+            cameraController?.start()
+        } catch (e: Exception) {
+            android.util.Log.e("MainActivity", "Failed to start camera in onStart", e)
+        }
     }
 
     override fun onResume() {
@@ -123,23 +154,48 @@ class MainActivity : ComponentActivity() {
 
     override fun onPause() {
         super.onPause()
-        cameraController?.stop()
-        glSurfaceView?.onPause()
+        try {
+            cameraController?.stop()
+        } catch (e: Exception) {
+            android.util.Log.e("MainActivity", "Failed to stop camera in onPause", e)
+        }
+        try {
+            glSurfaceView?.onPause()
+        } catch (e: Exception) {
+            android.util.Log.e("MainActivity", "Failed to pause GLSurfaceView", e)
+        }
     }
 
     override fun onStop() {
         super.onStop()
-        cameraController?.stop()
+        try {
+            cameraController?.stop()
+        } catch (e: Exception) {
+            android.util.Log.e("MainActivity", "Failed to stop camera in onStop", e)
+        }
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        cameraController?.release()
-        cameraController = null
+        try {
+            cameraController?.release()
+        } catch (e: Exception) {
+            android.util.Log.e("MainActivity", "Failed to release camera", e)
+        } finally {
+            cameraController = null
+        }
 
         // Release renderer resources safely
-        glSurfaceView?.queueEvent {
-            renderer.release()
+        try {
+            glSurfaceView?.queueEvent {
+                try {
+                    renderer.release()
+                } catch (e: Exception) {
+                    android.util.Log.e("MainActivity", "Failed to release renderer", e)
+                }
+            }
+        } catch (e: Exception) {
+            android.util.Log.e("MainActivity", "Failed to queue renderer release", e)
         }
     }
 

@@ -17,44 +17,66 @@ class CameraXController(
     private val surfaceTexture: SurfaceTexture
 ) {
 
+    private val TAG = "CameraXController"
     private var cameraProvider: ProcessCameraProvider? = null
     private val appContext = GLCameraApp.instance
     private val mainExecutor: Executor = ContextCompat.getMainExecutor(appContext)
 
     fun start() {
-        val future = ProcessCameraProvider.getInstance(appContext)
+        try {
+            val future = ProcessCameraProvider.getInstance(appContext)
 
-        future.addListener({
-            cameraProvider = future.get()
+            future.addListener({
+                try {
+                    cameraProvider = future.get()
 
-            val preview = Preview.Builder()
-                .setTargetRotation(Surface.ROTATION_0)
-                .build()
+                    val preview = Preview.Builder()
+                        .setTargetRotation(Surface.ROTATION_0)
+                        .build()
 
-            preview.setSurfaceProvider { request ->
-                val surface = Surface(surfaceTexture)
-                request.provideSurface(surface, mainExecutor) {
-                    surface.release()
+                    preview.setSurfaceProvider { request ->
+                        val surface = Surface(surfaceTexture)
+                        request.provideSurface(surface, mainExecutor) {
+                            surface.release()
+                        }
+                    }
+
+                    // Unbind previous use cases and bind new
+                    cameraProvider?.unbindAll()
+                    cameraProvider?.bindToLifecycle(
+                        lifecycleOwner,
+                        CameraSelector.DEFAULT_BACK_CAMERA,
+                        preview
+                    )
+                    
+                    Log.d(TAG, "Camera started successfully")
+                } catch (e: Exception) {
+                    Log.e(TAG, "Failed to bind camera use cases", e)
+                    throw RuntimeException("Camera initialization failed", e)
                 }
-            }
-
-            // Unbind previous use cases and bind new
-            cameraProvider?.unbindAll()
-            cameraProvider?.bindToLifecycle(
-                lifecycleOwner,
-                CameraSelector.DEFAULT_BACK_CAMERA,
-                preview
-            )
-
-        }, mainExecutor)
+            }, mainExecutor)
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to get camera provider", e)
+            throw RuntimeException("Failed to initialize camera provider", e)
+        }
     }
 
     fun stop() {
-        cameraProvider?.unbindAll()
+        try {
+            cameraProvider?.unbindAll()
+            Log.d(TAG, "Camera stopped")
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to stop camera", e)
+        }
     }
 
     fun release() {
-        cameraProvider?.unbindAll()
-        cameraProvider = null
+        try {
+            cameraProvider?.unbindAll()
+            cameraProvider = null
+            Log.d(TAG, "Camera released")
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to release camera", e)
+        }
     }
 }
