@@ -27,33 +27,6 @@ A high-performance Android camera application with real-time OpenGL ES 2.0 filte
 - **Security Hardened** - No cleartext traffic, secure by default
 - **Unit Tested** - 100% test coverage for ViewModel with 20+ test cases
 
-## � Recent Improvements (v1.0.0)
-
-### Error Handling & Stability
-- ✅ Comprehensive try-catch blocks in all critical paths
-- ✅ Graceful error recovery with automatic fallback mechanisms
-- ✅ User-friendly error messages via Toast notifications
-- ✅ Detailed error logging for debugging (MainActivity, GLCameraRenderer, CameraXController)
-
-### OpenGL Reliability
-- ✅ Automatic GL error checking after every operation
-- ✅ Shader compilation and linking validation
-- ✅ Program creation error detection
-- ✅ Texture operation error checking
-
-### Security
-- ✅ Removed cleartext traffic vulnerability
-- ✅ Improved Play Store compliance
-- ✅ Secure by default configuration
-
-### Testing
-- ✅ 20 comprehensive unit tests for MainViewModel
-- ✅ 100% coverage of frame tracking and statistics
-- ✅ Edge case handling (zero, negative, large values)
-- ✅ FPS conversion accuracy tests
-
-See [IMPROVEMENTS.md](IMPROVEMENTS.md) for detailed documentation.
-
 ## 🛠️ Technologies
 
 ### Core Framework
@@ -313,24 +286,6 @@ The app requires the following permissions:
 
 Permissions are requested at runtime with proper rationale and settings guidance.
 
-## 🏗️ Build Variants
-
-### Debug
-```bash
-./gradlew assembleDebug
-```
-- Debugging enabled
-- No code obfuscation
-- Larger APK size
-
-### Release
-```bash
-./gradlew assembleRelease
-```
-- Optimized for production
-- ProGuard/R8 enabled (when configured)
-- Smaller APK size
-
 ## 🧪 Testing
 
 The project includes comprehensive unit tests to ensure code quality and reliability.
@@ -439,7 +394,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - ✅ Comprehensive error handling (~90% coverage)
 - ✅ OpenGL error checking (100% of GL operations)
 - ✅ Unit test coverage (MainViewModel: 100%)
-- ✅ Security hardened (no cleartext traffic)
 - ✅ Proper resource management
 - ✅ Lifecycle-aware components
 - ✅ Graceful error recovery
