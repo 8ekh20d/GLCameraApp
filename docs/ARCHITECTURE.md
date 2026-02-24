@@ -326,15 +326,6 @@ OpenGL ES offers the best balance of performance, compatibility, and learning va
 ### CameraX
 - [Official CameraX Documentation](https://developer.android.com/training/camerax)
 - [CameraX Codelab](https://developer.android.com/codelabs/camerax-getting-started)
-
-**Time Investment:** ~40 hours learning + implementing
-
-**Learning Journey:**
-- Started with zero OpenGL knowledge
-- Week 1: Fundamentals (rendering pipeline, shaders, textures)
-- Week 2: Implementation (setup, OES textures, first shader)
-- Week 3: Filters & polish (grayscale, sepia, optimization)
-
 ---
 
 ## Performance Optimization Strategy
