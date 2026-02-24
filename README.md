@@ -1,6 +1,6 @@
 # 📸 GLCameraApp
 
-A high-performance Android camera application with real-time OpenGL ES 2.0 filters. Built with Jetpack Compose, CameraX, and custom GLSL shaders for professional-grade image processing.
+A production-ready Android camera application with real-time OpenGL ES 2.0 filters. Built with Jetpack Compose, CameraX, and custom GLSL shaders for professional-grade image processing.
 
 **Production-Ready**: Comprehensive error handling, OpenGL error checking, security hardening, and 100% unit test coverage for core components.
 
@@ -10,6 +10,18 @@ A high-performance Android camera application with real-time OpenGL ES 2.0 filte
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Tests](https://img.shields.io/badge/tests-passing-brightgreen.svg)](app/src/test)
 [![Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen.svg)](app/src/test/java/com/peopleinnet/glcameraapp/viewmodel/MainViewModelTest.kt)
+
+## 📱 Screenshots
+
+<p align="center">
+  <img src="screenshots/app_main_screen.png" width="250" alt="Main Screen"/>
+  <img src="screenshots/filter_grayscale.png" width="250" alt="Grayscale Filter"/>
+  <img src="screenshots/performance_metrics.png" width="250" alt="Performance Metrics"/>
+</p>
+
+<p align="center">
+  <em>Main Screen • Grayscale Filter • Performance Metrics (60 FPS)</em>
+</p>
 
 ## 🛠️ Tech Stack
 
