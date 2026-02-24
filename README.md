@@ -105,11 +105,6 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 **[📖 Complete Documentation Index](docs/README.md)** - Start here for all documentation
 
-### Assignment Documentation
-- **[Assignment Response](ASSIGNMENT_RESPONSE.md)** - Point-by-point requirement coverage
-- **[Technical Decisions](TECHNICAL_DECISIONS.md)** - Decision-making rationale and trade-offs
-
-### Project Documentation
 - [Architecture Guide](docs/ARCHITECTURE.md) - System design and technical decisions
 - [API Documentation](docs/API.md) - Public APIs and usage examples
 - [Contributing Guide](docs/CONTRIBUTING.md) - How to contribute to the project

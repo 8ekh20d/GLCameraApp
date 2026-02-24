@@ -295,7 +295,7 @@ OpenGL ES offers the best balance of performance, compatibility, and learning va
 
 **Learning Value:**
 - Demonstrates learning ability with unfamiliar technology
-- Assignment emphasizes learning graphics technologies
+- Good opportunity to learn graphics programming
 - More impressive technically
 
 **Scalability:**
@@ -307,8 +307,6 @@ OpenGL ES offers the best balance of performance, compatibility, and learning va
 - OpenGL: Used in production apps
 - Buffer: Less common for real-time processing
 - More transferable skill
-
-**See [TECHNICAL_DECISIONS.md](../TECHNICAL_DECISIONS.md) for detailed comparison and buffer manipulation implementation plan.**
 
 ---
 
