@@ -339,7 +339,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 **8ekh20d**
 
-- GitHub: [@8ekh20dt](https://github.com/8ekh20d/GLCameraApp)
+- GitHub: [@8ekh20d](https://github.com/8ekh20d/GLCameraApp)
 
 ## 🙏 Acknowledgments
 
